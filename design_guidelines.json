@@ -1,0 +1,91 @@
+{
+  "theme": "Traditional Nepali Khata (Ledger) Dashboard",
+  "description": "A digital representation of a traditional 'Khata' (account book) for Sanjeev Mill Udhyog. Combines the trustworthy, formal feeling of old-world accounting (parchment paper, maroon leather bindings, brass accents) with the efficiency of a modern high-density financial dashboard. The goal is an elite, highly readable, non-generic business tool with an 'Old Money / Heritage' aesthetic.",
+  "colors": {
+    "background_base": "#FDFBF7",
+    "background_surface": "#FFFFFF",
+    "primary_accent": "#7B1E27",
+    "primary_hover": "#5A151C",
+    "secondary_accent": "#C5A059",
+    "text_primary": "#2C2825",
+    "text_secondary": "#5C544D",
+    "border_subtle": "#E2D9C8",
+    "border_strong": "#C5A059",
+    "status_paid": "#2E6F40",
+    "status_paid_bg": "#EAF4EC",
+    "status_due": "#B33A3A",
+    "status_due_bg": "#F8EBEB"
+  },
+  "typography": {
+    "primary_heading": {
+      "family": "Playfair Display, serif",
+      "weight": "600, 700",
+      "usage": "H1, H2, Company Name, Print Header"
+    },
+    "monospace_data": {
+      "family": "Space Mono, monospace",
+      "weight": "400, 700",
+      "usage": "All numerical data, currency amounts (Rs.), rates, quantities, and dates. Ensures tabular alignment."
+    },
+    "body_ui": {
+      "family": "Inter, sans-serif",
+      "weight": "400, 500",
+      "usage": "Buttons, form labels, small text, table headers."
+    }
+  },
+  "layout_and_spacing": {
+    "philosophy": "Cardless, highly structured 'Notebook' layout.",
+    "container": "Use max-w-7xl mx-auto with substantial padding (p-6 or p-8) to represent the physical 'page'.",
+    "ledger_lines": "Instead of generic rounded floating cards, use strong vertical and horizontal dividers (border-b, border-r) to mimic ruled paper.",
+    "the_binding": "Add a thick left border (e.g., border-l-8 border-[#7B1E27]) to the main app layout or critical customer detail panels to mimic the red spine of a Khata book.",
+    "density": "Tight padding (p-3 to p-4) in ledger rows to fit maximum data comfortably on a single screen without scrolling.",
+    "corners": "Minimal border radius. Use rounded-sm or 0px. No pill-shaped floating elements for main containers. Keep it sharp and formal."
+  },
+  "components": {
+    "buttons": "Rectangular, sharp corners. Primary buttons should be #7B1E27 background with white text. Hover state: slightly darker, NO shadow. Keep it flat.",
+    "tables": "Crucial component. Must have clearly defined horizontal borders. The 'Running Balance' column must be distinctly highlighted (perhaps a light #FDFBF7 background or bold monospace text).",
+    "forms": "Inputs should have sharp borders (border-[#E2D9C8]), #FDFBF7 background inside the input field, and monospace text for amount inputs.",
+    "badges": "For 'Due' vs 'Paid'. Square or slightly rounded. Minimal padding.",
+    "print_view": "Must strip all navigation, sidebars, and UI backgrounds. Black and white mostly, with the #7B1E27 maroon used only for the company header and the final balance. Strictly structured for A4 portrait printing."
+  },
+  "images": [
+    {
+      "url": "https://images.pexels.com/photos/38374178/pexels-photo-38374178.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "category": "background",
+      "description": "Vintage antique leather bound book texture for the login screen background."
+    },
+    {
+      "url": "https://images.unsplash.com/photo-1718986017030-b6ba6f96827b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDB8MHwxfHNlYXJjaHw0fHxhc2lhbiUyMG1hbiUyMHBvcnRyYWl0JTIwcHJvZmlsZXxlbnwwfHx8fDE3ODUwODUyMzF8MA&ixlib=rb-4.1.0&q=85",
+      "category": "user_profile",
+      "description": "Sample customer profile picture for the ledger dashboard."
+    }
+  ],
+  "motion": {
+    "philosophy": "Functional and understated. No bouncy animations.",
+    "interactions": "Hover states on ledger rows (slight background darkening to #F9F6F0). Quick, snappy transitions (duration-150 ease-in-out).",
+    "page_load": "Simple fade-in. No complex stagger."
+  },
+  "accessibility": {
+    "contrast": "Ensure the text_secondary (#5C544D) meets APCA standards against the parchment background. Ensure red/green statuses are distinguishable by lightness, not just hue.",
+    "testing": "All interactive and key informational elements MUST include a `data-testid` attribute to facilitate robust automated testing."
+  },
+  "instructions_to_main_agent": [
+    "Inject standard Tailwind classes using the custom color hexes provided. You may need to extend tailwind config with these exact hex codes.",
+    "Import 'Playfair Display', 'Space Mono', and 'Inter' from Google Fonts in the global CSS or index.html.",
+    "Construct the dashboard focusing on data density. The 'Ledger' view is the most critical: Date, Product, Qty, Rate, Total, Payment In, Running Balance.",
+    "Create a specific CSS print media query (@media print) to hide the sidebar, navbar, and action buttons for the 'Print Ledger' feature.",
+    "Use Phosphor icons or Lucide icons for a refined, professional look. DO NOT use emojis as icons.",
+    "Avoid standard Shadcn 'Card' wrappers if they add too much shadow/radius. Override them to have 0px radius and solid 1px borders to mimic physical paper.",
+    "DO NOT use complete `transparent` background in header, overlays, any surface that has content under it."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You tend to converge toward generic, 'on distribution' outputs. In frontend design, this creates what users call the 'AI slop' aesthetic. Avoid this.",
+    "NEVER use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯 etc for icons.",
+    "Prioritize pre-existing components from src/components/ui, but override their generic SaaS look to match this 'Khata' aesthetic.",
+    "Always use 'data-testid' on interactive elements.",
+    "Ensure dark colors are used solidly, NO gradients.",
+    "Do NOT center align the app container. Maintain a left-aligned, document-like reading flow.",
+    "Use `sonner` for toast notifications (e.g., 'Payment Added').",
+    "All money amounts MUST use the monospace font."
+  ]
+}
