@@ -15,19 +15,19 @@ export default function CustomerDetail() {
   const [confirmDeleteCustomer, setConfirmDeleteCustomer] = useState(false);
   const [confirmDeleteEntry, setConfirmDeleteEntry] = useState(null);
 
-  const load = async () => {
-    setLoading(true);
+  const load = async ({ initial = false } = {}) => {
+    if (initial) setLoading(true);
     try {
       const r = await api.get(`/customers/${id}`);
       setData(r.data);
     } catch (e) {
       toast.error(formatApiError(e));
     } finally {
-      setLoading(false);
+      if (initial) setLoading(false);
     }
   };
 
-  useEffect(() => { load(); }, [id]);
+  useEffect(() => { load({ initial: true }); }, [id]);
 
   const rows = useMemo(() => computeLedger(data?.entries || []), [data]);
 
@@ -192,14 +192,20 @@ function computeLedger(entries) {
 }
 
 function AddEntries({ customerId, onAdded }) {
-  const [tab, setTab] = useState("charge");
+  const [tab, setTab] = React.useState(() => {
+    try { return sessionStorage.getItem("khata_add_tab") || "charge"; } catch { return "charge"; }
+  });
+  const setTabPersist = (t) => {
+    setTab(t);
+    try { sessionStorage.setItem("khata_add_tab", t); } catch { /* ignore */ }
+  };
   return (
     <div className="paper-surface border border-[#E2D9C8] no-print">
       <div className="flex border-b border-[#E2D9C8]">
-        <TabBtn active={tab === "charge"} onClick={() => setTab("charge")} testid="tab-add-charge">
+        <TabBtn active={tab === "charge"} onClick={() => setTabPersist("charge")} testid="tab-add-charge">
           <ReceiptText className="w-4 h-4" /> Add Product / Credit
         </TabBtn>
-        <TabBtn active={tab === "payment"} onClick={() => setTab("payment")} testid="tab-add-payment">
+        <TabBtn active={tab === "payment"} onClick={() => setTabPersist("payment")} testid="tab-add-payment">
           <HandCoins className="w-4 h-4" /> Record Payment
         </TabBtn>
       </div>

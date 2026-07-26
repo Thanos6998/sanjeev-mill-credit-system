@@ -93,7 +93,8 @@ export default function CustomerList() {
             <div>No customers found.</div>
           </div>
         ) : (
-          <table className="w-full">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[560px]">
             <thead>
               <tr className="border-b border-[#E2D9C8]">
                 <th className="text-left text-[10px] uppercase tracking-widest text-[#5C544D] px-4 py-3">Customer</th>
@@ -145,6 +146,7 @@ export default function CustomerList() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 

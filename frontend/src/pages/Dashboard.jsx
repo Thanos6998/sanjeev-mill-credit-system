@@ -96,8 +96,8 @@ export default function Dashboard() {
                   </td>
                   <td className="px-5 py-3 hidden sm:table-cell font-mono-num text-sm text-[#5C544D]">{c.phone || "—"}</td>
                   <td className="px-5 py-3 text-right font-mono-num font-bold text-[#B33A3A]">{formatRs(c.due)}</td>
-                  <td className="px-5 py-3 text-right">
-                    <Link to={`/customers/${c.id}`} className="text-xs uppercase tracking-widest text-[#7B1E27]" data-testid={`open-customer-${c.id}`}>
+                  <td className="px-5 py-3 text-right whitespace-nowrap">
+                    <Link to={`/customers/${c.id}`} className="text-xs uppercase tracking-widest text-[#7B1E27] whitespace-nowrap" data-testid={`open-customer-${c.id}`}>
                       Open →
                     </Link>
                   </td>

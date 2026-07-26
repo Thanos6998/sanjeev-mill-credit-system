@@ -107,10 +107,9 @@ export default function PrintLedger() {
           </table>
 
           {/* Totals */}
-          <div className="mt-8 grid grid-cols-3 gap-6">
-            <div />
-            <div />
-            <div className="border-t-2 pt-3" style={{ borderColor: "#7B1E27" }}>
+          <div className="mt-8 grid grid-cols-5 gap-6">
+            <div className="col-span-3" />
+            <div className="col-span-2 border-t-2 pt-3" style={{ borderColor: "#7B1E27" }}>
               <TotalLine label="Total Charged" value={formatRs(c.total_charged)} />
               <TotalLine label="Total Paid" value={formatRs(c.total_paid)} />
               <div className="h-px my-2" style={{ backgroundColor: "#7B1E27" }} />
@@ -130,9 +129,9 @@ export default function PrintLedger() {
 
 function TotalLine({ label, value, bold, maroon }) {
   return (
-    <div className="flex justify-between items-baseline py-1">
-      <span className="text-xs uppercase tracking-widest text-[#5C544D]">{label}</span>
-      <span className={`font-mono-num ${bold ? "text-lg font-bold" : "text-sm"} ${maroon ? "print-maroon" : ""}`} style={maroon ? { color: "#7B1E27" } : {}}>{value}</span>
+    <div className="flex justify-between items-baseline gap-4 py-1">
+      <span className="text-xs uppercase tracking-widest text-[#5C544D] whitespace-nowrap">{label}</span>
+      <span className={`font-mono-num whitespace-nowrap ${bold ? "text-lg font-bold" : "text-sm"} ${maroon ? "print-maroon" : ""}`} style={maroon ? { color: "#7B1E27" } : {}}>{value}</span>
     </div>
   );
 }
