@@ -1,0 +1,51 @@
+{
+  "summary": "Full backend + frontend E2E testing of Sanjeev Mill Udhyog Khata app. Backend: 37 pytest cases (auth, auth-guards on all 10 protected routes, customer CRUD, ledger charges/payments, validation, entry update/delete, cascade delete, dashboard stats, token isolation) — 37/37 pass. Frontend: complete owner journey verified on the public preview URL — wrong-password error, login redirect, localStorage token, session persistence on reload, 4 dashboard KPIs with Rs. formatting, top-debtor row + Open link navigation, customer create/search(name+phone)/edit/delete with confirm, charge amount preview (4 x 250 = Rs. 1,000.00), payment entry + running-due math, payment<=0 validation, single-entry delete with recompute, print ledger page (company header, customer info, rows, totals, auto window.print, zero buttons/nav inside .print-area), logout clearing token, and unauthenticated redirect to /login. No blocking bugs found.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "CORS middleware / backend/.env", "issue": "CORS_ORIGINS=\"*\" is used together with allow_credentials=True. Browsers reject wildcard origin with credentials; works today only because auth uses a Bearer header, not cookies. Set explicit origin(s)."},
+      {"endpoint": "/api/auth/login", "issue": "No brute-force / rate-limit lockout — unlimited failed login attempts are accepted (verified repeated 401s with no throttling)."},
+      {"endpoint": "/api/auth/*", "issue": "get_current_user reads an 'access_token' cookie, but /api/auth/login never sets one and /api/auth/logout does not clear one — dead code path. Either implement httpOnly cookie auth or remove the cookie branch."},
+      {"endpoint": "POST /api/customers", "issue": "Create returns 200 instead of 201 Created (cosmetic REST nit)."},
+      {"endpoint": "PATCH /api/customers/{id}", "issue": "Uses exclude_none, so a field can never be cleared back to empty via the API (e.g. removing a photo/address)."},
+      {"endpoint": "POST /api/customers", "issue": "photo base64 field has no size limit — a large image can bloat the document / hit the 16MB BSON cap."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "CustomerDetail / AddEntries", "issue": "After successfully recording a payment, load() remounts AddEntries and the tab silently resets to 'Add Product / Credit'. A user entering several payments must re-click 'Record Payment' each time (also caused a test-flow failure on the first run).", "selector": "[data-testid=\"tab-add-payment\"]", "priority": "MEDIUM"},
+      {"component": "CustomerDetail", "issue": "load() sets loading=true on every refresh, so the entire page is replaced by a 'Loading…' string after each add/delete — full-page flicker instead of an inline/table-level loader.", "selector": "[data-testid=\"customer-detail-page\"]", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "PrintLedger (/customers/:id/print)", "issues": ["'Remaining Due' total value wraps onto two lines ('Rs.' / '1,000.00') because the totals column is only 1/3 width with the label beside it — use whitespace-nowrap or a wider column; this appears on the printed PDF.", "Print ledger table rows have no cell padding or row separators, so rows look cramped compared with the in-app table."]},
+      {"screen": "Dashboard - Highest Outstanding table", "issues": ["'OPEN →' action link wraps onto two lines in its column at 1920px width."]},
+      {"screen": "CustomerList @390px mobile", "issues": ["Horizontal overflow: document scrollWidth is 395px vs 390px viewport; the row delete (trash) button is clipped at the right edge."]},
+      {"screen": "CustomerDetail charge/payment forms", "issues": ["Date fields use the native browser date input (mm/dd/yyyy chrome picker) rather than a styled shadcn calendar — inconsistent with the rest of the ledger styling and shows US format on a Nepali-locale app."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Preserve the selected tab (charge/payment) in CustomerDetail after a successful entry submit instead of resetting to 'Add Product / Credit'.",
+    "Fix 'Remaining Due' wrapping on the print ledger totals block (whitespace-nowrap / wider column).",
+    "Replace CORS_ORIGINS=\"*\" with the explicit preview origin since allow_credentials=True.",
+    "Fix 5px horizontal overflow on the customer list at 390px (clipped delete button).",
+    "Optional: avoid full-page 'Loading…' replacement on CustomerDetail refresh; use an inline loader."
+  ],
+  "critical_code_review_comments": [
+    "_due_for_customer() is called once per customer inside GET /api/customers and /api/dashboard/stats (N+1 query pattern). Replace with a single $group aggregation on db.entries to avoid O(N) round-trips as the customer base grows.",
+    "PATCH /api/entries/{id} accepts a raw 'amount' for charge entries without recomputing from qty*rate, allowing an amount that contradicts quantity*rate. Ignore client-supplied amount for charges.",
+    "CORS allow_origins=['*'] combined with allow_credentials=True is an invalid/ignored combination per the CORS spec.",
+    "No rate limiting on /api/auth/login — add attempt throttling/lockout.",
+    "Dead cookie branch in get_current_user (no endpoint ever sets or clears 'access_token' cookie).",
+    "ledger running-balance computation is duplicated verbatim in CustomerDetail.jsx (computeLedger) and PrintLedger.jsx — extract into a shared helper (DRY)."
+  ],
+  "updated_files": ["/app/backend/tests/backend_test.py"],
+  "success_rate": {"backend": "100% (37/37)", "frontend": "100% of tested flows passed; 2 UI nits + 4 design issues reported"},
+  "seed_data_creation": "Created and then deleted TEST_ prefixed customers (TEST_Ram Bahadur, TEST_Ledger Cust, TEST_Cascade, TEST_QA Gopal) and their ledger entries. DB left clean: only the pre-existing demo customer 'Ram Bahadur Thapa' (Rs. 2,550.00 due) and the seeded admin remain.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "owner@sanjeevmill.com / Sanjeev@2026 (from /app/memory/test_credentials.md) — valid, admin bcrypt hash verified as $2b$ 60 chars; seed_admin correctly resets password when ADMIN_PASSWORD changes.",
+  "context_for_next_testing_agent": "Regression suite lives at /app/backend/tests/backend_test.py (run: cd /app/backend && python -m pytest tests/backend_test.py -v). It runs under xdist parallelism, so the dashboard total_customers assertion uses a 3x retry to avoid cross-worker races. Frontend flows fully covered via Playwright against https://khata-pro-24.preview.emergentagent.com; the print page auto-calls window.print(), so stub it with page.add_init_script('window.print = () => {}') before navigating. Remaining unverified: customer photo base64 upload path and multi-owner isolation (only one user exists in the system).",
+  "rca_of_the_issue": "Tab reset after payment: CustomerDetail.load() flips loading=true, unmounting <AddEntries/>; its local useState('charge') re-initialises on remount, discarding the user's 'payment' tab selection. Fix by lifting the tab state above the loading guard or not blanking the page during refetch. Print 'Remaining Due' wrap: the totals grid gives the block only 1/3 of a max-w-4xl container while label+value share one flex row, so the Rs. value has insufficient inline width."
+}
